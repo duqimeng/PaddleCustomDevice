@@ -1,4 +1,4 @@
-// Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,27 +13,17 @@
 // limitations under the License.
 
 #include "paddle/phi/core/kernel_registry.h"
-#include "paddle/phi/core/visit_type.h"
-#include "paddle/phi/kernels/cast_kernel.h"
-#include "paddle/phi/kernels/gpu/cast_impl.h"
-
-PD_CUSTOM_KERNEL_REGISTER(cast,
+#include "paddle/phi/kernels/gpu/flip_kernel.cu"  //NOLINT
+PD_CUSTOM_KERNEL_REGISTER(flip,
                           metax_gpu,
                           ALL_LAYOUT,
-                          phi::CastKernel,
+                          phi::FlipKernel,
                           float,
                           double,
+                          phi::dtype::float16,
+                          phi::dtype::bfloat16,
                           int,
                           int64_t,
-                          int16_t,
                           bool,
-                          int8_t,
-                          uint8_t,
-                          phi::dtype::float16,
                           phi::dtype::complex<float>,
-                          phi::dtype::complex<double>,
-                          phi::dtype::bfloat16,
-                          phi::dtype::float8_e4m3fn,
-                          phi::dtype::float8_e5m2) {
-  kernel->OutputAt(0).SetDataType(phi::DataType::UNDEFINED);
-}
+                          phi::dtype::complex<double>) {}
