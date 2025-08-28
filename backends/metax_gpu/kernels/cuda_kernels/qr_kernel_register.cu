@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// #include "paddle/phi/core/kernel_registry.h"
-// #include "paddle/phi/kernels/impl/qr_kernel_impl.h"
-// #include "paddle/phi/kernels/qr_kernel.h"
+#include "paddle/phi/core/kernel_registry.h"
+#include "paddle/phi/kernels/impl/qr_kernel_impl.h"
+#include "paddle/phi/kernels/qr_kernel.h"
 
-// #ifdef PADDLE_WITH_HIP
-// PD_CUSTOM_KERNEL_REGISTER(qr, metax_gpu, ALL_LAYOUT, phi::QrKernel, float,
-// double) {} #else PD_CUSTOM_KERNEL_REGISTER(qr,
-//                    metax_gpu,
-//                    ALL_LAYOUT,
-//                    phi::QrKernel,
-//                    float,
-//                    double,
-//                    phi::dtype::complex<float>,
-//                    phi::dtype::complex<double>) {}
-// #endif
+PD_CUSTOM_KERNEL_REGISTER(qr,
+                          metax_gpu,
+                          ALL_LAYOUT,
+                          phi::QrKernel,
+                          float,
+                          double,
+                          phi::dtype::complex<float>,
+                          phi::dtype::complex<double>) {}
