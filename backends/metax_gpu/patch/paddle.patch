@@ -997,3 +997,16 @@ diff --git a/third_party/yaml-cpp b/third_party/yaml-cpp
 @@ -1 +1 @@
 -Subproject commit 1d8ca1f35eb3a9c9142462b28282a848e5d29a91
 +Subproject commit 1d8ca1f35eb3a9c9142462b28282a848e5d29a91-dirty
+diff --git a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
+index 2789cb59a2..b91b076f7f 100644
+--- a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
++++ b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
+@@ -20,7 +20,7 @@ limitations under the License. */
+ 
+ #include "paddle/phi/common/amp_type_traits.h"
+ #include "paddle/phi/kernels/baddbmm_kernel.h"
+-#include "paddle/phi/kernels/funcs/blas/blas.h"
++#include "kernels/funcs/blas/blas.h"
+ #include "paddle/phi/kernels/funcs/eigen/common.h"
+ #include "paddle/phi/kernels/funcs/eigen/eigen_function.h"
+ 
