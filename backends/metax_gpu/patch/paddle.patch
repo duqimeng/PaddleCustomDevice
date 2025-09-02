@@ -32,7 +32,7 @@ index bff0f2bf70..9376b5781f 100644
  #include "paddle/phi/core/platform/device/gpu/gpu_info.h"
  #include "paddle/phi/core/platform/profiler/utils.h"
 diff --git a/paddle/phi/backends/dynload/cudnn.h b/paddle/phi/backends/dynload/cudnn.h
-index 7a5450c349..95de89ced2 100644
+index c0080f0a5e..458ca3e2e8 100644
 --- a/paddle/phi/backends/dynload/cudnn.h
 +++ b/paddle/phi/backends/dynload/cudnn.h
 @@ -38,7 +38,9 @@ extern void EnforceCUDNNLoaded(const char* fn_name);
@@ -46,7 +46,7 @@ index 7a5450c349..95de89ced2 100644
        return reinterpret_cast<cudnn_func>(p_##__name)(args...);      \
      }                                                                \
    };                                                                 \
-@@ -49,7 +51,6 @@ TEST_API extern void EnforceCUDNNLoaded(const char* fn_name);
+@@ -49,7 +51,6 @@ extern void EnforceCUDNNLoaded(const char* fn_name);
   * different cudnn version has different interfaces
   **/
  #define CUDNN_DNN_ROUTINE_EACH(__macro)                    \
@@ -54,7 +54,7 @@ index 7a5450c349..95de89ced2 100644
    __macro(cudnnSetTensor4dDescriptor);                     \
    __macro(cudnnSetTensor4dDescriptorEx);                   \
    __macro(cudnnSetTensorNdDescriptor);                     \
-@@ -104,6 +105,13 @@ TEST_API extern void EnforceCUDNNLoaded(const char* fn_name);
+@@ -104,6 +105,13 @@ extern void EnforceCUDNNLoaded(const char* fn_name);
    __macro(cudnnSetDropoutDescriptor);                      \
    __macro(cudnnRestoreDropoutDescriptor);                  \
    __macro(cudnnCreateRNNDescriptor);                       \
@@ -68,7 +68,7 @@ index 7a5450c349..95de89ced2 100644
    __macro(cudnnDestroyDropoutDescriptor);                  \
    __macro(cudnnDestroyRNNDescriptor);                      \
    __macro(cudnnSetTensorNdDescriptorEx);                   \
-@@ -118,7 +126,8 @@ TEST_API extern void EnforceCUDNNLoaded(const char* fn_name);
+@@ -118,7 +126,8 @@ extern void EnforceCUDNNLoaded(const char* fn_name);
    __macro(cudnnCreateActivationDescriptor);                \
    __macro(cudnnSetActivationDescriptor);                   \
    __macro(cudnnGetActivationDescriptor);                   \
@@ -326,7 +326,7 @@ index 4ff2e528a9..81421c8ca1 100644
  
    for (int offset = warpSize / 2; offset > 0; offset /= 2)
 diff --git a/paddle/phi/core/enforce.h b/paddle/phi/core/enforce.h
-index 95f1d58c64..667064f341 100644
+index 024a7de73e..1e4cdf16be 100644
 --- a/paddle/phi/core/enforce.h
 +++ b/paddle/phi/core/enforce.h
 @@ -45,7 +45,9 @@ limitations under the License. */
@@ -391,7 +391,7 @@ index c646e487d0..325122175c 100644
  #undef DECLARE_TYPE_FOR_GPU
  
 diff --git a/paddle/phi/core/platform/device_context.h b/paddle/phi/core/platform/device_context.h
-index d0526a99bd..f2db6354da 100644
+index 2d02eb370b..8a7233e34e 100644
 --- a/paddle/phi/core/platform/device_context.h
 +++ b/paddle/phi/core/platform/device_context.h
 @@ -25,8 +25,8 @@ limitations under the License. */
@@ -405,6 +405,19 @@ index d0526a99bd..f2db6354da 100644
  #include "paddle/phi/backends/dynload/cudnn.h"
  #include "paddle/phi/backends/dynload/cusolver.h"
  #include "paddle/phi/backends/dynload/cusparse.h"
+diff --git a/paddle/phi/kernels/cpu/index_select_impl.h b/paddle/phi/kernels/cpu/index_select_impl.h
+index d69eb67d6f..1d8b6e9375 100644
+--- a/paddle/phi/kernels/cpu/index_select_impl.h
++++ b/paddle/phi/kernels/cpu/index_select_impl.h
+@@ -18,7 +18,7 @@
+ 
+ #include "paddle/phi/core/dense_tensor.h"
+ #include "paddle/phi/core/tensor_utils.h"
+-#include "paddle/phi/kernels/funcs/blas/blas.h"
++#include "kernels/funcs/blas/blas.h"
+ #include "paddle/phi/kernels/funcs/eigen/common.h"
+ #include "paddle/phi/kernels/funcs/math_function.h"
+ 
 diff --git a/paddle/phi/kernels/funcs/fc_functor.cu b/paddle/phi/kernels/funcs/fc_functor.cu
 index bdfd7313af..546bd07d5e 100644
 --- a/paddle/phi/kernels/funcs/fc_functor.cu
@@ -884,6 +897,19 @@ index 06fff0dd58..973049105f 100644
  #include "paddle/phi/kernels/funcs/eigen/common.h"
  #include "paddle/phi/kernels/funcs/eigen/eigen_function.h"
  #include "paddle/phi/kernels/funcs/for_range.h"
+diff --git a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
+index 2789cb59a2..b91b076f7f 100644
+--- a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
++++ b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
+@@ -20,7 +20,7 @@ limitations under the License. */
+ 
+ #include "paddle/phi/common/amp_type_traits.h"
+ #include "paddle/phi/kernels/baddbmm_kernel.h"
+-#include "paddle/phi/kernels/funcs/blas/blas.h"
++#include "kernels/funcs/blas/blas.h"
+ #include "paddle/phi/kernels/funcs/eigen/common.h"
+ #include "paddle/phi/kernels/funcs/eigen/eigen_function.h"
+ 
 diff --git a/paddle/phi/kernels/impl/conv_transpose_grad_kernel_impl.h b/paddle/phi/kernels/impl/conv_transpose_grad_kernel_impl.h
 index 9a21c23666..86413d1577 100644
 --- a/paddle/phi/kernels/impl/conv_transpose_grad_kernel_impl.h
@@ -1002,6 +1028,13 @@ index 6f03f76eeb..5fe2c3e7dc 100644
  #include "paddle/phi/kernels/funcs/for_range.h"
  #include "paddle/phi/kernels/funcs/matrix_inverse.h"
  
+diff --git a/third_party/flagcx b/third_party/flagcx
+index 77495cd6a8..7e6c4cc3ca 160000
+--- a/third_party/flagcx
++++ b/third_party/flagcx
+@@ -1 +1 @@
+-Subproject commit 77495cd6a84b1c8f88dd8f6f99e63ef3c84c766f
++Subproject commit 7e6c4cc3cad3fce9b3dedfe46a9d195d616e8ffa
 diff --git a/third_party/flashattn b/third_party/flashattn
 index 581e48aa69..749aca3807 160000
 --- a/third_party/flashattn
@@ -1015,42 +1048,3 @@ diff --git a/third_party/yaml-cpp b/third_party/yaml-cpp
 @@ -1 +1 @@
 -Subproject commit 1d8ca1f35eb3a9c9142462b28282a848e5d29a91
 +Subproject commit 1d8ca1f35eb3a9c9142462b28282a848e5d29a91-dirty
-diff --git a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
-index 2789cb59a2..b91b076f7f 100644
---- a/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
-+++ b/paddle/phi/kernels/impl/baddbmm_kernel_impl.h
-@@ -20,7 +20,7 @@ limitations under the License. */
- 
- #include "paddle/phi/common/amp_type_traits.h"
- #include "paddle/phi/kernels/baddbmm_kernel.h"
--#include "paddle/phi/kernels/funcs/blas/blas.h"
-+#include "kernels/funcs/blas/blas.h"
- #include "paddle/phi/kernels/funcs/eigen/common.h"
- #include "paddle/phi/kernels/funcs/eigen/eigen_function.h"
- 
-diff --git a/paddle/phi/kernels/impl/deformable_conv_kernel_impl.h b/paddle/phi/kernels/impl/deformable_conv_kernel_impl.h
-index ad9e9197dd..5478d9817d 100644
---- a/paddle/phi/kernels/impl/deformable_conv_kernel_impl.h
-+++ b/paddle/phi/kernels/impl/deformable_conv_kernel_impl.h
-@@ -18,7 +18,7 @@
- #include "paddle/phi/core/dense_tensor.h"
- #include "paddle/phi/kernels/empty_kernel.h"
- #include "paddle/phi/kernels/full_kernel.h"
--#include "paddle/phi/kernels/funcs/blas/blas.h"
-+#include "kernels/funcs/blas/blas.h"
- #include "paddle/phi/kernels/funcs/deformable_conv_functor.h"
- #include "paddle/phi/kernels/transpose_kernel.h"
- #include "paddle/utils/optional.h"
-diff --git a/paddle/phi/kernels/cpu/index_select_impl.h b/paddle/phi/kernels/cpu/index_select_impl.h
-index d69eb67d6f..1d8b6e9375 100644
---- a/paddle/phi/kernels/cpu/index_select_impl.h
-+++ b/paddle/phi/kernels/cpu/index_select_impl.h
-@@ -18,7 +18,7 @@
- 
- #include "paddle/phi/core/dense_tensor.h"
- #include "paddle/phi/core/tensor_utils.h"
--#include "paddle/phi/kernels/funcs/blas/blas.h"
-+#include "kernels/funcs/blas/blas.h"
- #include "paddle/phi/kernels/funcs/eigen/common.h"
- #include "paddle/phi/kernels/funcs/math_function.h"
- 
