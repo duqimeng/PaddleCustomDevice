@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "paddle/phi/kernels/gpu/deformable_conv_grad_kernel.cu"  // NOLINT
+#include "paddle/phi/backends/gpu/gpu_context.h"
+#include "paddle/phi/core/kernel_registry.h"
+#include "paddle/phi/kernels/baddbmm_kernel.h"
+#include "paddle/phi/kernels/impl/baddbmm_kernel_impl.h"
 
-PD_CUSTOM_KERNEL_REGISTER(deformable_conv_grad,
+PD_CUSTOM_KERNEL_REGISTER(baddbmm,
                           metax_gpu,
                           ALL_LAYOUT,
-                          phi::DeformableConvGradKernel,
+                          phi::BaddbmmKernel,
                           float,
-                          double) {}
+                          double,
+                          phi::dtype::float16,
+                          phi::dtype::bfloat16) {}
