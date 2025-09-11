@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "glog/logging.h"
 #include "kernels/metax_context.h"
 #include "paddle/phi/backends/gpu/gpu_context.h"
 #include "paddle/phi/common/memory_utils.h"
@@ -39,7 +38,6 @@
 #include "paddle/phi/kernels/slice_kernel.h"
 #include "paddle/phi/kernels/transpose_kernel.h"
 #include "paddle/phi/kernels/tril_triu_kernel.h"
-
 namespace phi {
 
 template <class T, class Context>
@@ -334,81 +332,11 @@ struct QrFunctor<phi::dtype::complex<T>, Context> {
 };
 
 template <typename T, typename Context>
-void PrintTensorData(const Context& dev_ctx,
-                     const DenseTensor& tensor,
-                     const std::string& name,
-                     int max_elements = 10) {
-  if (tensor.numel() == 0) {
-    VLOG(0) << name << " is empty.";
-    return;
-  }
-
-  DenseTensor cpu_tensor;
-  cpu_tensor.Resize(tensor.dims());
-  dev_ctx.template HostAlloc<T>(&cpu_tensor);
-  phi::Copy(dev_ctx, tensor, phi::CPUPlace(), true, &cpu_tensor);
-
-  const T* data = cpu_tensor.data<T>();
-  VLOG(0) << name << " first "
-          << std::min(static_cast<int64_t>(max_elements), tensor.numel())
-          << " elements:";
-  for (int64_t i = 0;
-       i < std::min(static_cast<int64_t>(max_elements), tensor.numel());
-       ++i) {
-    if constexpr (std::is_same_v<T, phi::dtype::complex<float>> ||
-                  std::is_same_v<T, phi::dtype::complex<double>>) {
-      VLOG(0) << "  [" << i << "]: " << data[i].real << " + " << data[i].imag
-              << "j";
-    } else {
-      VLOG(0) << "  [" << i << "]: " << data[i];
-    }
-  }
-}
-
-template <typename T, typename Context>
-bool CheckTensorHasNaN(const Context& dev_ctx, const DenseTensor& tensor) {
-  if (tensor.numel() == 0) {
-    return false;
-  }
-
-  DenseTensor cpu_tensor;
-  cpu_tensor.Resize(tensor.dims());
-  dev_ctx.template HostAlloc<T>(&cpu_tensor);
-  phi::Copy(dev_ctx, tensor, phi::CPUPlace(), true, &cpu_tensor);
-
-  const T* data = cpu_tensor.data<T>();
-  for (int64_t i = 0; i < tensor.numel(); ++i) {
-    if constexpr (std::is_same_v<T, phi::dtype::complex<float>> ||
-                  std::is_same_v<T, phi::dtype::complex<double>>) {
-      if (std::isnan(data[i].real) || std::isnan(data[i].imag)) {
-        return true;
-      }
-    } else {
-      if (std::isnan(static_cast<float>(
-              data[i]))) {  // Cast to float for NaN check if needed
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-template <typename T, typename Context>
 void QrKernel(const Context& dev_ctx,
               const DenseTensor& x,
               const std::string& mode,
               DenseTensor* q,
               DenseTensor* r) {
-  // 打印输入张量 x 的基本信息
-  VLOG(0) << "Input tensor x:";
-  VLOG(0) << "  Dimensions: " << x.dims();
-  VLOG(0) << "  Number of elements: " << x.numel();
-
-  // 新增: 检查输入是否有NaN并打印前几个元素
-  bool input_has_nan = CheckTensorHasNaN<T, Context>(dev_ctx, x);
-  VLOG(0) << "Input x has NaN: " << (input_has_nan ? "Yes" : "No");
-  PrintTensorData<T, Context>(dev_ctx, x, "Input x");
-
   bool compute_q;
   bool reduced_mode;
   std::tie(compute_q, reduced_mode) = phi::funcs::ParseQrMode(mode);
@@ -421,28 +349,9 @@ void QrKernel(const Context& dev_ctx,
     r->Resize(r->dims());
     dev_ctx.template Alloc<T>(q);
     dev_ctx.template Alloc<T>(r);
-
-    // 新增: 对于空张量，也打印输出
-    VLOG(0) << "Output q (empty case):";
-    VLOG(0) << "  Dimensions: " << q->dims();
-    VLOG(0) << "Output r (empty case):";
-    VLOG(0) << "  Dimensions: " << r->dims();
     return;
   }
   QrFunctor<T, Context>()(dev_ctx, x, compute_q, reduced_mode, q, r);
-
-  // 新增: 检查输出是否有NaN并打印前几个元素
-  if (compute_q) {
-    bool q_has_nan = CheckTensorHasNaN<T, Context>(dev_ctx, *q);
-    VLOG(0) << "Output q has NaN: " << (q_has_nan ? "Yes" : "No");
-    PrintTensorData<T, Context>(dev_ctx, *q, "Output q");
-  } else {
-    VLOG(0) << "Q not computed.";
-  }
-
-  bool r_has_nan = CheckTensorHasNaN<T, Context>(dev_ctx, *r);
-  VLOG(0) << "Output r has NaN: " << (r_has_nan ? "Yes" : "No");
-  PrintTensorData<T, Context>(dev_ctx, *r, "Output r");
 }
 
 #ifdef PADDLE_WITH_HIP
@@ -510,7 +419,6 @@ void BatchedGeqrf<GPUContext, float>(const GPUContext& dev_ctx,
     const int64_t a_stride_64 = static_cast<int64_t>(a_stride);
     const int64_t tau_stride_64 = static_cast<int64_t>(tau_stride);
 
-    // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
     auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
 
     size_t workspace_in_bytes_on_device = 0;
@@ -588,7 +496,6 @@ void BatchedGeqrf<GPUContext, float>(const GPUContext& dev_ctx,
   } else {
     int lwork = 0;
 
-    // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
     auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
     PADDLE_ENFORCE_GPU_SUCCESS(phi::dynload::cusolverDnSgeqrf_bufferSize(
         handle, m, n, a, lda, &lwork));
@@ -644,7 +551,6 @@ void BatchedGeqrf<GPUContext, double>(const GPUContext& dev_ctx,
                                       int tau_stride) {
   int lwork = 0;
 
-  // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   PADDLE_ENFORCE_GPU_SUCCESS(
       phi::dynload::cusolverDnDgeqrf_bufferSize(handle, m, n, a, lda, &lwork));
@@ -699,7 +605,6 @@ void BatchedGeqrf<GPUContext, phi::complex64>(const GPUContext& dev_ctx,
                                               int tau_stride) {
   int lwork = 0;
 
-  // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   PADDLE_ENFORCE_GPU_SUCCESS(phi::dynload::cusolverDnCgeqrf_bufferSize(
       handle, m, n, reinterpret_cast<cuComplex*>(a), lda, &lwork));
@@ -756,7 +661,6 @@ void BatchedGeqrf<GPUContext, phi::complex128>(const GPUContext& dev_ctx,
                                                int tau_stride) {
   int lwork = 0;
 
-  // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   PADDLE_ENFORCE_GPU_SUCCESS(phi::dynload::cusolverDnZgeqrf_bufferSize(
       handle, m, n, reinterpret_cast<cuDoubleComplex*>(a), lda, &lwork));
@@ -814,7 +718,6 @@ void BatchedOrgqr<GPUContext, float>(const GPUContext& dev_ctx,
                                      int tau_stride) {
   int lwork = 0;
 
-  // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   PADDLE_ENFORCE_GPU_SUCCESS(phi::dynload::cusolverDnSorgqr_bufferSize(
       handle, m, n, k, a, lda, tau, &lwork));
@@ -871,7 +774,6 @@ void BatchedOrgqr<GPUContext, double>(const GPUContext& dev_ctx,
                                       int tau_stride) {
   int lwork = 0;
 
-  // auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   auto handle = GetCusolverDnHandle(dev_ctx.stream(), dev_ctx.GetPlace());
   PADDLE_ENFORCE_GPU_SUCCESS(phi::dynload::cusolverDnDorgqr_bufferSize(
       handle, m, n, k, a, lda, tau, &lwork));
@@ -1060,12 +962,3 @@ PD_REGISTER_PLUGIN_KERNEL(qr,
                           phi::complex64,
                           phi::complex128) {}
 #endif
-
-// PD_REGISTER_PLUGIN_KERNEL(qr,
-//                           metax_gpu,
-//                           ALL_LAYOUT,
-//                           phi::QrKernel,
-//                           float,
-//                           double,
-//                           phi::dtype::complex<float>,
-//                           phi::dtype::complex<double>) {}
