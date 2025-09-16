@@ -30,7 +30,6 @@ pip install safetensors==0.6.2 -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/
 # install paddle
 python -m pip install --pre paddlepaddle -i https://www.paddlepaddle.org.cn/packages/nightly/cpu/
 
-# exit 1
 
 unset http_proxy https_proxy
 
