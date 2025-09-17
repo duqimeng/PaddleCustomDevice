@@ -18,8 +18,8 @@ defaults:
 
 jobs:
   metax-gpu-test:
-    # runs-on: paddle-metax-runner-set
-    runs-on: debug-paddle-runner-set
+    runs-on: paddle-metax-runner-set
+    # runs-on: debug-paddle-runner-set
     steps:
       - name: Checkout repository
         run: |
