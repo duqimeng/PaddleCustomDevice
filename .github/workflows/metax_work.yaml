@@ -32,7 +32,6 @@ jobs:
             --shallow-submodules \
             --jobs=8 \
             --branch ${{ github.base_ref || github.ref_name}} \
-
             --recurse-submodules \
             https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
 
