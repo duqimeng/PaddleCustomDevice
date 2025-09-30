@@ -1,4 +1,4 @@
-name: padlle metax gpu test
+name: paddle metax gpu test
 
 on:
   workflow_dispatch:
