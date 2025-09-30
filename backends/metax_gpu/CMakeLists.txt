@@ -326,6 +326,8 @@ file(
   ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/im2sequence_kernel.cu
   ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/im2sequence_grad_kernel.cu
   ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/increment_kernel.cu
+  ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/embedding_grad_add_to_kernel.cu
+  # ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/cross_entropy_bwd_w_downcast.cu
   # ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/index_elementwise_get_kernel.cu
   ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/index_elementwise_get_grad_kernel.cu
   ${PADDLE_SOURCE_DIR}/paddle/phi/kernels/gpu/index_elementwise_put_kernel.cu
@@ -728,6 +730,11 @@ target_link_libraries(
   ${WARPCTC_LIBRARIES}
   ${WARPRNNT_LIBRARIES}
   ${PADDLE_CORE_LIB})
+
+target_link_libraries(${TARGET_NAME} /opt/maca/lib/libmccl.so)
+target_link_libraries(${TARGET_NAME} /opt/maca/lib/libmcFlashAttn.so)
+target_link_libraries(${TARGET_NAME} /opt/maca/lib/libmcpti.so)
+
 include_directories(BEFORE ${PADDLE_SOURCE_DIR})
 
 target_compile_definitions(
