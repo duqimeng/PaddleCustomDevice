@@ -39,10 +39,14 @@ jobs:
 
             paddle_branch=${{ github.base_ref || github.ref_name}}
             echo $paddle_branch
-            sleep 10000
+            # sleep 10000
             change_numbers=$(git diff --name-only remotes/origin/${paddle_branch} | wc -l)
+            echo $change_numbers
             change_backend=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/"| wc -l)
+            echo $change_backend
             change_metax_only=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/metax_gpu"| wc -l)
+            echo $change_metax_only
+
             git diff --name-only remotes/origin/${paddle_branch}
 
             if [ $change_numbers -ne $change_backend ]; then
