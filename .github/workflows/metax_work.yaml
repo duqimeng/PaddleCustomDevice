@@ -42,10 +42,17 @@ jobs:
             # sleep 10000
             change_numbers=$(git diff --name-only remotes/origin/${paddle_branch} | wc -l)
             echo $change_numbers
-            change_backend=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/"| wc -l)
+
+
+            change_backend=$(git diff --name-only remotes/origin/${paddle_branch} | grep -c "backends/" || true)
             echo $change_backend
-            change_metax_only=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/metax_gpu"| wc -l)
+            change_metax_only=$(git diff --name-only remotes/origin/${paddle_branch} | grep -c "backends/metax_gpu" || true)
             echo $change_metax_only
+
+            # change_backend=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/"| wc -l)
+            # echo $change_backend
+            # change_metax_only=$(git diff --name-only remotes/origin/${paddle_branch} | grep "backends/metax_gpu"| wc -l)
+            # echo $change_metax_only
 
             git diff --name-only remotes/origin/${paddle_branch}
 
