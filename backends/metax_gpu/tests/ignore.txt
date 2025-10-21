@@ -27,3 +27,6 @@ test_swiglu_metax
 test_squared_l2_norm_op
 test_dygraph_spectral_norm
 test_bincount_op
+test_adamw_op
+test_einsum_op
+test_complex_matmul
